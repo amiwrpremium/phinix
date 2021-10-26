@@ -1,7 +1,7 @@
-from src.phinix.main import Phinix, get_token
-from src.phinix import exceptions
+from .main import Phinix, get_token
+from . import exceptions
 
 
-__version__ = "0.0.1"
+__version__ = "0.0.2"
 __author__ = "amiwrpremium"
 __reason__ = 'OK'
