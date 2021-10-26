@@ -4,7 +4,7 @@ import requests
 from simplejson import JSONDecodeError
 import json
 
-from src.phinix.exceptions import *
+from .exceptions import *
 
 
 def validate_response(response: dict) -> bool:
@@ -56,7 +56,7 @@ class Phinix:
     def order_book(self, symbol: str):
         func_name = inspect.currentframe().f_code.co_name
         try:
-            r = self.session.get(self.base_url + f'depth?symbol={symbol}')
+            r = self.session.get(self.base_url + f'depth?symbol={symbol.upper()}')
         except Exception as e:
             raise RequestsExceptions(func_name, e)
 
@@ -79,7 +79,7 @@ class Phinix:
     def all_recent_trades(self, symbol: str):
         func_name = inspect.currentframe().f_code.co_name
         try:
-            r = self.session.get(self.base_url + f'trades?symbol={symbol}')
+            r = self.session.get(self.base_url + f'trades?symbol={symbol.upper()}')
         except Exception as e:
             raise RequestsExceptions(func_name, e)
 
