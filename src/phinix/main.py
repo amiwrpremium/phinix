@@ -23,13 +23,13 @@ def get_token(mobile_number: str, password: str) -> str:
     }
 
     try:
-        r = requests.post('https://api.phinix.ir/auth/login', headers=headers, data=payload)
+        r = requests.post('https://api.phinix.ir/auth/login', headers=headers, data=payload, timeout=5)
     except Exception as e:
         raise RequestsExceptions(func_name, e)
 
     status_code = r.status_code
 
-    if status_code == 200:
+    if status_code == 200 or status_code == 201:
         try:
             resp = r.json()
         except JSONDecodeError as e:
@@ -56,13 +56,13 @@ class Phinix:
     def order_book(self, symbol: str):
         func_name = inspect.currentframe().f_code.co_name
         try:
-            r = self.session.get(self.base_url + f'depth?symbol={symbol.upper()}')
+            r = self.session.get(self.base_url + f'depth?symbol={symbol.upper()}', timeout=5)
         except Exception as e:
             raise RequestsExceptions(func_name, e)
 
         status_code = r.status_code
 
-        if status_code == 200:
+        if status_code == 200 or status_code == 201:
             try:
                 resp = r.json()
             except JSONDecodeError as e:
@@ -79,13 +79,13 @@ class Phinix:
     def all_recent_trades(self, symbol: str):
         func_name = inspect.currentframe().f_code.co_name
         try:
-            r = self.session.get(self.base_url + f'trades?symbol={symbol.upper()}')
+            r = self.session.get(self.base_url + f'trades?symbol={symbol.upper()}', timeout=5)
         except Exception as e:
             raise RequestsExceptions(func_name, e)
 
         status_code = r.status_code
 
-        if status_code == 200:
+        if status_code == 200 or status_code == 201:
             try:
                 resp = r.json()
             except JSONDecodeError as e:
@@ -102,13 +102,13 @@ class Phinix:
     def all_balances(self):
         func_name = inspect.currentframe().f_code.co_name
         try:
-            r = self.session.get(self.base_url + 'account/balances')
+            r = self.session.get(self.base_url + 'account/balances', timeout=5)
         except Exception as e:
             raise RequestsExceptions(func_name, e)
 
         status_code = r.status_code
 
-        if status_code == 200:
+        if status_code == 200 or status_code == 201:
             try:
                 resp = r.json()
             except JSONDecodeError as e:
@@ -126,13 +126,13 @@ class Phinix:
         coin = coin.upper()
         func_name = inspect.currentframe().f_code.co_name
         try:
-            r = self.session.get(self.base_url + 'account/balances')
+            r = self.session.get(self.base_url + 'account/balances', timeout=5)
         except Exception as e:
             raise RequestsExceptions(func_name, e)
 
         status_code = r.status_code
 
-        if status_code == 200:
+        if status_code == 200 or status_code == 201:
             try:
                 resp = r.json()
             except JSONDecodeError as e:
@@ -150,13 +150,13 @@ class Phinix:
         coin = coin.upper()
         func_name = inspect.currentframe().f_code.co_name
         try:
-            r = self.session.get(self.base_url + 'account/balances')
+            r = self.session.get(self.base_url + 'account/balances', timeout=5)
         except Exception as e:
             raise RequestsExceptions(func_name, e)
 
         status_code = r.status_code
 
-        if status_code == 200:
+        if status_code == 200 or status_code == 201:
             try:
                 resp = r.json()
             except JSONDecodeError as e:
@@ -183,13 +183,13 @@ class Phinix:
                 "type": type_.lower(),
                 "client_id": client_id,
             })
-            r = self.session.post(self.base_url + 'account/orders', data=payload)
+            r = self.session.post(self.base_url + 'account/orders', data=payload, timeout=5)
         except Exception as e:
             raise RequestsExceptions(func_name, e)
 
         status_code = r.status_code
 
-        if status_code == 200:
+        if status_code == 200 or status_code == 201:
             try:
                 resp = r.json()
             except JSONDecodeError as e:
@@ -210,13 +210,13 @@ class Phinix:
             payload = json.dumps({
                 "clientOrderId": client_id
             })
-            r = self.session.delete(self.base_url + 'account/orders', data=payload)
+            r = self.session.delete(self.base_url + 'account/orders', data=payload, timeout=5)
         except Exception as e:
             raise RequestsExceptions(func_name, e)
 
         status_code = r.status_code
 
-        if status_code == 200:
+        if status_code == 200 or status_code == 201:
             try:
                 resp = r.json()
             except JSONDecodeError as e:
@@ -234,13 +234,13 @@ class Phinix:
         func_name = inspect.currentframe().f_code.co_name
 
         try:
-            r = self.session.delete(self.base_url + f'account/openOrders?symbol={symbol.upper()}')
+            r = self.session.get(self.base_url + f'account/openOrders?symbol={symbol.upper()}', timeout=5)
         except Exception as e:
             raise RequestsExceptions(func_name, e)
 
         status_code = r.status_code
 
-        if status_code == 200:
+        if status_code == 200 or status_code == 201:
             try:
                 resp = r.json()
             except JSONDecodeError as e:
@@ -248,6 +248,38 @@ class Phinix:
 
             if validate_response(resp):
                 return resp.get('result').get('orders')
+            else:
+                raise JsonDecodingError(func_name, r.text)
+
+        else:
+            raise StatusCodeError(func_name, status_code, r.text)
+
+    def open_orders_by_side(self, symbol: str, side: str):
+        func_name = inspect.currentframe().f_code.co_name
+
+        try:
+            r = self.session.get(self.base_url + f'account/openOrders?symbol={symbol.upper()}', timeout=5)
+        except Exception as e:
+            raise RequestsExceptions(func_name, e)
+
+        status_code = r.status_code
+
+        if status_code == 200 or status_code == 201:
+            try:
+                resp = r.json()
+            except JSONDecodeError as e:
+                raise JsonDecodingError(func_name, e)
+
+            if validate_response(resp):
+                all_orders = resp.get('result').get('orders')
+                if all_orders and len(all_orders) > 0:
+                    _ = []
+                    for order in all_orders:
+                        order: dict
+                        if order.get('side').lower() == side.lower():
+                            _.append(order)
+                    return _
+
             else:
                 raise JsonDecodingError(func_name, r.text)
 
@@ -267,13 +299,13 @@ class Phinix:
             params.update({'active': active})
 
         try:
-            r = self.session.get(self.base_url + f'account/trades', params=params)
+            r = self.session.get(self.base_url + f'account/trades', params=params, timeout=5)
         except Exception as e:
             raise RequestsExceptions(func_name, e)
 
         status_code = r.status_code
 
-        if status_code == 200:
+        if status_code == 200 or status_code == 201:
             try:
                 resp = r.json()
             except JSONDecodeError as e:
