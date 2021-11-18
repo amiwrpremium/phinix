@@ -377,3 +377,63 @@ class Phinix:
 
         else:
             raise StatusCodeError(func_name, status_code, r.text, _)
+
+    def get_order_by_id(self, order_id: str):
+        _ = locals()
+        func_name = inspect.currentframe().f_code.co_name
+
+        try:
+            r = self.session.get(self.base_url + f'account/orders/{order_id}', timeout=5)
+        except Exception as e:
+            raise RequestsExceptions(func_name, e, _)
+
+        status_code = r.status_code
+
+        if status_code == 200 or status_code == 201:
+            try:
+                resp = r.json()
+            except JSONDecodeError as e:
+                raise JsonDecodingError(func_name, e, _)
+
+            if validate_response(resp):
+                return resp.get('result')
+            else:
+                raise JsonDecodingError(func_name, r.text, _)
+
+        else:
+            raise StatusCodeError(func_name, status_code, r.text, _)
+
+    def withdraw(self, coin: str, client_unique_id: str, network: str, amount: str, address: str, tag: str = None):
+        _ = locals()
+        func_name = inspect.currentframe().f_code.co_name
+
+        try:
+            payload = {
+                "coin": coin.upper(),
+                "client_unique_id": str(client_unique_id),
+                "network": network,
+                "value": str(amount),
+                "wallet_address": address,
+            }
+            if tag:
+                payload.update({'tag': tag})
+            payload = json.dumps(payload)
+            r = self.session.post(self.base_url + f'account/crypto-withdrawal', data=payload, timeout=5)
+        except Exception as e:
+            raise RequestsExceptions(func_name, e, _)
+
+        status_code = r.status_code
+
+        if status_code == 200 or status_code == 201:
+            try:
+                resp = r.json()
+            except JSONDecodeError as e:
+                raise JsonDecodingError(func_name, e, _)
+
+            if validate_response(resp):
+                return resp.get('result')
+            else:
+                raise JsonDecodingError(func_name, r.text, _)
+
+        else:
+            raise StatusCodeError(func_name, status_code, r.text, _)

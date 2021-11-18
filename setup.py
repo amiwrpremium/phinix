@@ -3,7 +3,7 @@ from distutils.core import setup
 setup(
     name='phinix',
     packages=['phinix'],
-    version='0.0.5',
+    version='0.0.6',
     license='MIT',
     description='Phinix cryptocurrency exchange python sdk',
     author='amiwrpremium',
