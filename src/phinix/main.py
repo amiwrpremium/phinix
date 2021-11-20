@@ -330,13 +330,12 @@ class Phinix:
 
             if validate_response(resp):
                 all_orders = resp.get('result').get('orders')
-                if all_orders and len(all_orders) > 0:
-                    _ = []
-                    for order in all_orders:
-                        order: dict
-                        if order.get('side').lower() == side.lower():
-                            _.append(order)
-                    return _
+                __ = []
+                for order in all_orders:
+                    order: dict
+                    if order.get('side').lower() == side.lower():
+                        __.append(order)
+                return __
 
             else:
                 raise JsonDecodingError(func_name, r.text, _)
