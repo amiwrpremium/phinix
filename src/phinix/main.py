@@ -230,14 +230,17 @@ class Phinix:
         func_name = inspect.currentframe().f_code.co_name
 
         try:
-            payload = json.dumps({
+            payload = {
                 "price": price,
                 "quantity": quantity,
                 "side": side.lower(),
                 "symbol": symbol.upper(),
                 "type": type_.lower(),
-                "client_id": client_id,
-            })
+            }
+            if client_id:
+                payload.update({'client_id': client_id})
+            payload = json.dumps(payload)
+
             r = self.session.post(self.base_url + 'account/orders', data=payload, timeout=5)
         except Exception as e:
             raise RequestsExceptions(func_name, e, _)
